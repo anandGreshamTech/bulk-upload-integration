@@ -1,0 +1,23 @@
+1,V,2.0
+2,H,SMOKESORA,1,10,0,0,0,0,0,0
+3,A,ACCOUNT-sZo0,,BUP7,REFERENCE1-st4S,REFERENCE2-7hni,10
+4,I,,,Adm,givenName-XNW,otherGivenNames-LcP,familyName-geY,1994-02-13,M,reference-Smi,,34 Jones Road,,Thornleigh,NSW,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+5,X,AU,709185333,
+6,I,,BENEFICIARY,Amb,,otherGivenNames-oFX,familyName-ERn,1995-08-15,M,reference-kTL,,34 Jones Road,,Thornleigh,NSW,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+7,X,AU,709185333,
+8,I,,BENEFICIARY,Bp,givenName-Dim,otherGivenNames-MsG,,1996-01-03,M,reference-fuY,,34 Jones Road,,Thornleigh,NSW,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+9,X,AU,709185333,
+10,I,,BENEFICIARY,Br,givenName-oIF,otherGivenNames-IWa,familyName-pzn,1995-05-22,M,reference-nOi,,,,Thornleigh,NSW,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+11,X,AU,709185333,
+12,I,,BENEFICIARY,Capt,givenName-hmx,otherGivenNames-Mrq,familyName-ZtE,1992-04-11,M,reference-fTw,,34 Jones Road,,,NSW,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+13,X,AU,709185333,
+14,I,,BENEFICIARY,Col,givenName-sQG,otherGivenNames-oMN,familyName-KKn,1992-02-15,M,reference-LEp,,34 Jones Road,,Thornleigh,,2120,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+15,X,AU,709185333,
+16,I,,BENEFICIARY,Cmdr,givenName-vrJ,otherGivenNames-Fpu,familyName-hXS,1991-10-13,M,reference-clk,,34 Jones Road,,Thornleigh,NSW,,AU,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+17,X,AU,709185333,
+18,I,,BENEFICIARY,Cpl,givenName-mqw,otherGivenNames-bJl,familyName-WAQ,1990-11-09,M,reference-mUa,,34 Jones Road,,Thornleigh,NSW,2120,,35 Jones Road,,Barangaroo,NSW,2000,AU,1
+19,X,AU,709185333,
+20,I,,BENEFICIARY,Dame,givenName-LeU,otherGivenNames-NQj,familyName-fDb,1998-09-12,M,reference-Ijv,,34 Jones Road,,Thornleigh,NSW,2120,AU,35 Jones Road,,,NSW,2000,AU,1
+21,X,AU,709185333,
+22,I,non,BENEFICIARY,Dean,givenName-UzI,otherGivenNames-aTo,familyName-URY,19-02-14,M,reference-yRG,,34 Jones Road,,Thornleigh,NSW,2120,AU,35 Jones Road,,Barangaroo,,2000,AU,1
+23,X,AU,709185333,

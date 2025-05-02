@@ -1,0 +1,4 @@
+Record Type,Error Text
+E,Row 1: [The header TotalAmount does not match the sum of the Detail amounts in the file]
+E,Row 2: File validation failed
+E,Row 3: File validation failed

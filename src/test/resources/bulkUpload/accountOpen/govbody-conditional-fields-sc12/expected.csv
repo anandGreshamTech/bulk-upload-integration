@@ -1,0 +1,33 @@
+1,V,2.0
+2,H,SMOKESORA,1,0,0,0,0,0,0,13,1
+2.01,E,1000,All accounts in the file are invalid
+3,A,FAILED,,,1
+3.01,E,1001,Account unable to be opened due to errors with beneficiary
+4,G,FAILED,,,1
+4.01,E,0002,Row 4: missing mandatory field in column 4
+6,G,FAILED,,,1
+6.01,E,0002,Row 6: missing mandatory field in column 5
+8,G,FAILED,,,1
+8.01,E,0002,Row 8: missing mandatory field in column 6
+10,G,FAILED,,,1
+10.01,E,0002,Row 10: missing mandatory field in column 12
+12,G,FAILED,,,1
+12.01,E,1001,Party unable to be created due to errors with Account
+14,G,FAILED,,,1
+14.01,E,0002,Row 14: missing mandatory field in column 14
+16,G,FAILED,,,1
+16.01,E,0002,Row 16: missing mandatory field in column 15
+18,G,FAILED,,,3
+18.01,E,0002,Row 18: missing mandatory field in column 17
+18.02,E,0002,Row 18: missing mandatory field in column 17
+18.03,E,0002,Row 18: missing mandatory field in column 20
+20,G,FAILED,,,1
+20.01,E,0002,Row 20: missing mandatory field in column 21
+22,G,FAILED,,,1
+22.01,E,0002,Row 22: missing mandatory field in column 22
+24,G,FAILED,,,1
+24.01,E,0002,Row 24: missing mandatory field in column 23
+26,G,FAILED,,,1
+26.01,E,1001,Party unable to be created due to errors with Account
+28,G,FAILED,,,1
+28.01,E,1001,Party unable to be created due to errors with Account

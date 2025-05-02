@@ -1,0 +1,16 @@
+1,V,2.0
+2,H,SMOKESORA,1,0,6,0,0,0,0,0,0
+3,A,FAILED,,,1
+3.01,E,party-related-error,Account unable to be opened due to errors with beneficiary
+4,C,FAILED,,,1
+4.01,E,invalid-tfn,Invalid TFN
+6,C,FAILED,,,1
+6.01,E,invalid-tfn,Invalid TFN
+8,C,FAILED,,,1
+8.01,E,invalid-tfn,Invalid TFN
+10,C,FAILED,,,1
+10.01,E,invalid-tfn,Invalid TFN
+12,C,FAILED,,,1
+12.01,E,invalid-tfn,Invalid TFN
+14,C,FAILED,,,1
+14.01,E,invalid-tfn,Invalid TFN

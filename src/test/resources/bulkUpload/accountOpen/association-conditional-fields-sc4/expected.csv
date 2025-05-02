@@ -1,0 +1,12 @@
+1,V,2.0
+2,H,SMOKESORA,1,0,0,0,3,0,0,0,1
+2.01,E,1000,All accounts in the file are invalid
+3,A,FAILED,,,1
+3.01,E,1001,Account unable to be opened due to errors with beneficiary
+4,S,FAILED,,,1
+4.01,E,0002,Row 4: missing mandatory field in column 10
+6,S,FAILED,,,1
+6.01,E,0003,Row 6: invalid field format '1' in column 11
+8,S,FAILED,,,2
+8.01,E,0002,Row 8: missing mandatory field in column 10
+8.02,E,0002,Row 8: missing mandatory field in column 11

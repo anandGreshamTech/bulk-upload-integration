@@ -1,0 +1,4 @@
+Record Type,Error Text
+E,Row 1: [The AuthLink in the file name does not match the Customer Code in the header]
+E,Row 2: File validation failed
+E,Row 3: File validation failed

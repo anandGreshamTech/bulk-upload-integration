@@ -1,0 +1,5 @@
+Record Type,Customer Code,Total Count,Total Amount,Currency
+H,SMOKESORA,1,9.47,AUD
+P,2,,514783313,7.69,AUD,RTGS,Payment-number-1,266505,46157191,Payment-account-name-1,AUTO-PAY,RTGS Automation
+P,3,,514783313,1.78,AUD,RTGS,Payment-number-2,756500,74131333,Payment-account-name-2,AUTO-PAY,RTGS Automation
+

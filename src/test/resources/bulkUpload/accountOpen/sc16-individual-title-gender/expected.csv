@@ -1,0 +1,85 @@
+1,V,2.0
+2,H,SMOKESORA,1,40,0,0,0,0,0,0,1
+2.01,E,1000,All accounts in the file are invalid
+3,A,FAILED,,,1
+3.01,E,1001,Account unable to be opened due to errors with beneficiary
+4,I,FAILED,,,1
+4.01,E,1001,Party unable to be created due to errors with Account
+6,I,FAILED,,,1
+6.01,E,1001,Party unable to be created due to errors with Account
+8,I,FAILED,,,1
+8.01,E,1001,Party unable to be created due to errors with Account
+10,I,FAILED,,,1
+10.01,E,1001,Party unable to be created due to errors with Account
+12,I,FAILED,,,1
+12.01,E,1001,Party unable to be created due to errors with Account
+14,I,FAILED,,,1
+14.01,E,1001,Party unable to be created due to errors with Account
+16,I,FAILED,,,1
+16.01,E,1001,Party unable to be created due to errors with Account
+18,I,FAILED,,,1
+18.01,E,1001,Party unable to be created due to errors with Account
+20,I,FAILED,,,1
+20.01,E,1001,Party unable to be created due to errors with Account
+22,I,FAILED,,,1
+22.01,E,1001,Party unable to be created due to errors with Account
+24,I,FAILED,,,1
+24.01,E,1001,Party unable to be created due to errors with Account
+26,I,FAILED,,,1
+26.01,E,1001,Party unable to be created due to errors with Account
+28,I,FAILED,,,1
+28.01,E,1001,Party unable to be created due to errors with Account
+30,I,FAILED,,,1
+30.01,E,1001,Party unable to be created due to errors with Account
+32,I,FAILED,,,1
+32.01,E,1001,Party unable to be created due to errors with Account
+34,I,FAILED,,,1
+34.01,E,1001,Party unable to be created due to errors with Account
+36,I,FAILED,,,1
+36.01,E,1001,Party unable to be created due to errors with Account
+38,I,FAILED,,,1
+38.01,E,1001,Party unable to be created due to errors with Account
+40,I,FAILED,,,1
+40.01,E,1001,Party unable to be created due to errors with Account
+42,I,FAILED,,,1
+42.01,E,1001,Party unable to be created due to errors with Account
+44,I,FAILED,,,1
+44.01,E,1001,Party unable to be created due to errors with Account
+46,I,FAILED,,,1
+46.01,E,1001,Party unable to be created due to errors with Account
+48,I,FAILED,,,1
+48.01,E,1001,Party unable to be created due to errors with Account
+50,I,FAILED,,,1
+50.01,E,1001,Party unable to be created due to errors with Account
+52,I,FAILED,,,1
+52.01,E,1001,Party unable to be created due to errors with Account
+54,I,FAILED,,,1
+54.01,E,1001,Party unable to be created due to errors with Account
+56,I,FAILED,,,1
+56.01,E,1001,Party unable to be created due to errors with Account
+58,I,FAILED,,,1
+58.01,E,1001,Party unable to be created due to errors with Account
+60,I,FAILED,,,1
+60.01,E,1001,Party unable to be created due to errors with Account
+62,I,FAILED,,,1
+62.01,E,1001,Party unable to be created due to errors with Account
+64,I,FAILED,,,1
+64.01,E,1001,Party unable to be created due to errors with Account
+66,I,FAILED,,,1
+66.01,E,1001,Party unable to be created due to errors with Account
+68,I,FAILED,,,1
+68.01,E,1001,Party unable to be created due to errors with Account
+70,I,FAILED,,,1
+70.01,E,1001,Party unable to be created due to errors with Account
+72,I,FAILED,,,1
+72.01,E,0003,Row 72: invalid field format ' ' in column 5
+74,I,FAILED,,,1
+74.01,E,1001,Party unable to be created due to errors with Account
+76,I,FAILED,,,1
+76.01,E,1001,Party unable to be created due to errors with Account
+78,I,FAILED,,,1
+78.01,E,1001,Party unable to be created due to errors with Account
+80,I,FAILED,,,1
+80.01,E,1001,Party unable to be created due to errors with Account
+82,I,FAILED,,,1
+82.01,E,0003,Row 82: invalid field format 'J' in column 10

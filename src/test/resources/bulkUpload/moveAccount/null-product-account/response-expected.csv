@@ -1,0 +1,3 @@
+Record Type,Total Count,Successful Count,Failed Count
+H,1,0,1
+M,2,not-provided,,FAILURE,"[account Id or account number is required, Product Id or Product Code is required]",VALIDATION_ERROR

@@ -1,0 +1,28 @@
+1,V,2.0
+2,H,SMOKESORA,1,10,0,0,0,0,0,0,1
+2.01,E,1000,All accounts in the file are invalid
+3,A,FAILED,,,1
+3.01,E,1001,Account unable to be opened due to errors with beneficiary
+4,I,FAILED,,,1
+4.01,E,0002,Row 4: missing mandatory field in column 4
+6,I,FAILED,,,1
+6.01,E,0002,Row 6: missing mandatory field in column 6
+8,I,FAILED,,,1
+8.01,E,0002,Row 8: missing mandatory field in column 8
+10,I,FAILED,,,1
+10.01,E,0002,Row 10: missing mandatory field in column 13
+12,I,FAILED,,,1
+12.01,E,0002,Row 12: missing mandatory field in column 15
+14,I,FAILED,,,1
+14.01,E,0002,Row 14: missing mandatory field in column 16
+16,I,FAILED,,,1
+16.01,E,0002,Row 16: missing mandatory field in column 17
+18,I,FAILED,,,2
+18.01,E,0002,Row 18: missing mandatory field in column 18
+18.02,E,0002,Row 18: missing mandatory field in column 18
+20,I,FAILED,,,1
+20.01,E,0002,Row 20: missing mandatory field in column 21
+22,I,FAILED,,,3
+22.01,E,0003,Row 22: beneficiaryID should be blank for new beneficiary
+22.02,E,0003,Row 22: invalid field format '19-02-14' in column 9
+22.03,E,0002,Row 22: missing mandatory field in column 22

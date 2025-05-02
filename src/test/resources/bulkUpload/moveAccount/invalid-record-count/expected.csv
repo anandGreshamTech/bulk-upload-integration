@@ -1,0 +1,3 @@
+Record Type,Error Text
+E,Row 1: [The header Total Count does not match the number of detail records in the file]
+E,Row 2: File validation failed

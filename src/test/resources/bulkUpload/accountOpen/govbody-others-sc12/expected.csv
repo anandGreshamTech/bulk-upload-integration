@@ -1,0 +1,11 @@
+1,V,2.0
+2,H,SMOKESORA,1,0,0,0,0,0,0,3,1
+2.01,E,1000,All accounts in the file are invalid
+3,A,FAILED,,,1
+3.01,E,1001,Account unable to be opened due to errors with beneficiary
+4,G,FAILED,,,1
+4.01,E,1001,Party unable to be created due to errors with Account
+6,G,FAILED,,,1
+6.01,E,1001,Party unable to be created due to errors with Account
+8,G,FAILED,,,1
+8.01,E,0003,Row 8: invalid field format 'shore' in column 6
