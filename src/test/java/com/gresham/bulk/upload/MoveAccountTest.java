@@ -3,6 +3,7 @@ package com.gresham.bulk.upload;
 import com.gresham.bulk.upload.service.KubeCommands;
 import com.gresham.bulk.upload.service.Loader;
 import com.gresham.bulk.upload.service.ResourceReader;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +19,8 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-public class MoveAccountTest {
+@Slf4j
+ class MoveAccountTest {
 
     static String dataDir = "src/test/resources/bulkUpload/moveAccount";
 
@@ -33,19 +35,21 @@ public class MoveAccountTest {
     static String type = "Move";
 
     @Test
-    public void moveAccount() {
+     void moveAccount() {
+
+        boolean devMode = true;
         List<String> actual = new LinkedList<>();
-        List<String> expected = new LinkedList<>();
+        List<String> expected;
         
-        String drRegex = "(sc\\d+-)|(-sc\\d+)";
+        String drRegex = devMode ? "(sc\\d+-)|(-sc\\d+)" : ".*";
         Pattern pattern = Pattern.compile(drRegex);
         List<Path> accountOpenTestScenarios = reader.getDirs(dataDir);
         for (Path path : accountOpenTestScenarios) {
             if (pattern.matcher(path.getFileName().toString()).find()) {
-                System.out.println("In progress {" + path.getFileName() + "}");
+                log.info("In progress {" + path.getFileName() + "}");
                 List<Path> files = reader.getFiles(path);
                 Path testFile = reader.createTestFile(reader.getInputFile(files, "data"), authlink, type);
-                System.out.println(testFile.toString());
+                log.info(testFile.toString());
                 Path expectedFile = reader.getInputFile(files, "expected");
                 List<String> commsOut = loader.run(kubeCommands.getCommsOutPodCommand(), false);
                 loader.run(kubeCommands.getCopyTestFile(testFile), false);
@@ -69,9 +73,9 @@ public class MoveAccountTest {
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
-                System.out.println("{expected}\n :" + expected);
-                System.out.println("----------------");
-                System.out.println("{actual}\n :" + actual);
+                log.info("{expected}\n :" + expected);
+                log.info("----------------");
+                log.info("{actual}\n :" + actual);
 
                 assertTrue(CollectionUtils.isEqualCollection(expected, actual));
                 reader.cleanUp(reader.getFiles(path), "Move_");
