@@ -1,0 +1,3 @@
+Record Type,Error Text
+E,Row 2: invalid field format 'ONE' in column 4-Row 2: Invalid Account Close total count-Row 2: An Account Close file without any Accounts is invalid
+E,Row 3: Account unable to be closed due to file-level errors

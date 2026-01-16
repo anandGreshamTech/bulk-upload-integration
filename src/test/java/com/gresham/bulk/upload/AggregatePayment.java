@@ -5,11 +5,13 @@ import com.gresham.bulk.upload.service.Loader;
 import com.gresham.bulk.upload.service.ResourceReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.test.context.TestPropertySource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -22,51 +24,55 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @Slf4j
-class AccountOpenTest {
+class AggregatePayment {
 
-    static String accountOpenDataDir = "src/test/resources/bulkUpload/accountOpen";
-
+    static String dataDir = "src/test/resources/bulkUpload/aggPayment";
+    
     @Autowired
     private KubeCommands kubeCommands;
     @Autowired
     private ResourceReader reader;
     @Autowired
     private Loader loader;
-    boolean devMode = true;
-    
-    static List<Path> accountOpenData() {
-        return ResourceReader.getTempDir(accountOpenDataDir);
+    static boolean devMode=true;
+    static String authlink = "SMOKESORA";
+    static String type = "AggPay";
+    static List<Path> aggregatePaymentTestFiles() {
+        List<Path> tempDir = ResourceReader.getTempDir(dataDir);
+        List<Path> result = new LinkedList<>();
+        String drRegex = devMode ? "headerCLA&ACCInfoBothPresent" : ".*";
+        Pattern pattern = Pattern.compile(drRegex);
+        tempDir.forEach(path -> {
+            if (pattern.matcher(path.getFileName().toString()).find()) {
+                result.add(path);
+            }
+        });
+        return result;
     }
 
     @ParameterizedTest
-    @MethodSource("accountOpenData")
-    void testAccountOpen(Path path) throws IOException {
-        
+    @MethodSource("aggregatePaymentTestFiles")
+    void aggPayments(Path path) {
         List<String> actual = new LinkedList<>();
         List<String> expected;
-        String drRegex = devMode ? "(sc\\d+-)|(-sc\\d+)" : ".*";
-
-        Pattern pattern = Pattern.compile(drRegex);
-        if (!pattern.matcher(path.getFileName().toString()).find()) {
             log.info("In progress {" + path.getFileName() + "}");
             List<Path> files = reader.getFiles(path);
-            Path testFile = reader.createTestFile(reader.getInputFile(files, "data"));
+            Path testFile = reader.createTestFile(reader.getInputFile(files, "data"), authlink, type);
             log.info(testFile.toString());
             Path expectedFile = reader.getInputFile(files, "expected");
             List<String> commsOut = loader.run(kubeCommands.getCommsOutPodCommand(), false);
             loader.run(kubeCommands.getCopyTestFile(testFile), false);
             String rejectFile = testFile.getFileName().toString().replace(".csv", "_REJECT.csv");
             String responseFile = testFile.getFileName().toString().replace(".csv", "_RESPONSE.csv");
-            String[] readFileFromConsole = kubeCommands.readFileFromConsole(commsOut.get(0), responseFile);
-
+            String[] readFileFromConsole = kubeCommands.readFileFromConsole(commsOut.get(0), rejectFile);
             if (expectedFile.getFileName().toString().toUpperCase().contains("RESPONSE")) {
                 readFileFromConsole = kubeCommands.readFileFromConsole(commsOut.get(0), responseFile);
-                if (kubeCommands.isFileCreated(commsOut.get(0), responseFile)) {
+                if (reader.isFileCreated(commsOut.get(0), responseFile)) {
                     actual = loader.run(readFileFromConsole, true);
                 }
             } else {
 
-                if (kubeCommands.isFileCreated(commsOut.get(0), rejectFile)) {
+                if (reader.isFileCreated(commsOut.get(0), rejectFile)) {
                     actual = loader.run(readFileFromConsole, true);
                 }
 
@@ -81,10 +87,7 @@ class AccountOpenTest {
             log.info("{actual}\n :" + actual);
 
             assertTrue(CollectionUtils.isEqualCollection(expected, actual));
-            reader.cleanUp(reader.getFiles(path), "AccountOpen_");
+            reader.cleanUp(reader.getFiles(path), "Pay_");
         }
-
-    }
-
 
 }

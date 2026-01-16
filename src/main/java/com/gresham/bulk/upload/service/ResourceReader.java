@@ -43,7 +43,7 @@ public class ResourceReader {
     }
 
     public void cleanUp(List<Path> files, String pattern) {
-        files.stream().forEach(file -> {
+        files.forEach(file -> {
             if (file.getFileName().toString().contains(pattern)) {
                 try {
                     Files.delete(file);
@@ -111,6 +111,17 @@ public class ResourceReader {
         return String.format("%s_%s_%s.csv",  type,customer, getCurrentDate());
     }
     public List<Path> getDirs(String basePath) {
+        List<Path> dirs = new LinkedList<>();
+        try (Stream<Path> paths = Files.list(Paths.get(basePath))) {
+            dirs= paths.filter(Files::isDirectory)
+                    .collect(toList());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return dirs;
+    }
+
+    public static List<Path> getTempDir(String basePath) {
         List<Path> dirs = new LinkedList<>();
         try (Stream<Path> paths = Files.list(Paths.get(basePath))) {
             dirs= paths.filter(Files::isDirectory)

@@ -1,0 +1,2 @@
+Record Type,Error Text
+E,Row 1: [Invalid debit/credit type provided for an Aggregate Payment file][The header Instruction Count does not match the number of Instructions in the file]

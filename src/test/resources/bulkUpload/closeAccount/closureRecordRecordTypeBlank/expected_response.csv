@@ -1,0 +1,4 @@
+1,V,1.0
+2,H,2,0,2
+3,C,,,FAILURE,Row 3: Account Id or Account number is required,VALIDATION_ERROR
+4,C,,,FAILURE,Row 4: Account Id or Account number is required,VALIDATION_ERROR

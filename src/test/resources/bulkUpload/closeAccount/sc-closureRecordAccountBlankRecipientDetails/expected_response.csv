@@ -1,0 +1,5 @@
+1,V,1.0
+2,H,3,0,3
+3,C,,473446107,FAILURE,Row 3: Invalid ACMC Account Number provided-Row 3: Recipient Bank Code is required,VALIDATION_ERROR
+4,C,,302690092,FAILURE,Row 4: Invalid ACMC Account Number provided-Row 4: Recipient Account Number is required,VALIDATION_ERROR
+5,C,,952849292,FAILURE,Row 5: Invalid ACMC Account Number provided-Row 5: Recipient Account Name is required,VALIDATION_ERROR

@@ -1,0 +1,3 @@
+Record Type,Error Text
+E,Row 2: Number of Accounts defined in Header: -1 does not match number of Accounts in file: 1
+E,Row 3: Account unable to be closed due to file-level errors

@@ -1,0 +1,2 @@
+Record Type,Error Text
+E,"Row 1: [totalAmount is required, totalAmount is invalid][The header TotalAmount does not match the sum of the Instruction amounts in the file]"

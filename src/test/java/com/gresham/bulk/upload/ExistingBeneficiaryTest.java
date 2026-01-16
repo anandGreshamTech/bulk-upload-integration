@@ -73,7 +73,7 @@ public String getBeneficiaryQueryForCustomer(String customer,String type) {
         return response.statusCode()==200;
     }
     
-    public void setBaseURI(String environment) {
+    public static void setBaseURI(String environment) {
        String.format("https://%s.clareti.cash/login",environment);
     }
     public static Map<String, Object> getLoginToBankGenericParam(){

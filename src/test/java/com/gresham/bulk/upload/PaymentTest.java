@@ -6,6 +6,8 @@ import com.gresham.bulk.upload.service.ResourceReader;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -30,19 +32,22 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
     @Autowired
     private Loader loader;
 
+    boolean devMode = true;
+
     static String authlink = "SMOKESORA";
     static String type = "Pay";
 
-    @Test
-     void payments() {
-        boolean devMode = true;
+    static List<Path> paymentTestFiles(){
+        return ResourceReader.getTempDir(dataDir);
+    }
+    @ParameterizedTest
+    @MethodSource("paymentTestFiles")
+     void payments(Path path) {
         List<String> actual = new LinkedList<>();
         List<String> expected;
         
         String drRegex = devMode? "(sc\\d+-)|(-sc\\d+)":".*";
         Pattern pattern = Pattern.compile(drRegex);
-        List<Path> accountOpenTestScenarios = reader.getDirs(dataDir);
-        for (Path path : accountOpenTestScenarios) {
             if (pattern.matcher(path.getFileName().toString()).find()) {
                 log.info("In progress {" + path.getFileName() + "}");
                 List<Path> files = reader.getFiles(path);
@@ -78,7 +83,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
                 assertTrue(CollectionUtils.isEqualCollection(expected, actual));
                 reader.cleanUp(reader.getFiles(path), "Pay_");
             }
-        }
+        
     }
 
 }

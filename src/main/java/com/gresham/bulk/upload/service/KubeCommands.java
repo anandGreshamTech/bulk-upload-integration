@@ -12,10 +12,16 @@ public class KubeCommands {
     String[] commsOutPodName = {
             "sh", "-c", "/usr/local/bin/kubectl get pods -n coil -o custom-columns=NAME:.metadata.name | grep comms-out"
     };
+    String[] simulatorPodNameCommand = {
+            "sh", "-c", "/usr/local/bin/kubectl get pods -n coil -o custom-columns=NAME:.metadata.name | grep simulator"
+    };
     String kubectlDir = "/usr/local/bin/kubectl";
 
     public String[] getCommsOutPodCommand(){
         return commsOutPodName;
+    }
+    public String[] getSimulatorPodCommand(){
+        return simulatorPodNameCommand;
     }
     
     public String[] getCopyTestFile(Path file){
@@ -31,6 +37,16 @@ public class KubeCommands {
                 podName,
                 "-c", "comm-anz-out",
                 "--", "sh", "-c", "more ~/output/".concat(fileName)
+        };
+    }
+
+    public String[] readFileFromConsole(String podName,String container,String fileName, String outputDir){
+//        String tmpFileName = fileName.replace(".csv", "").concat("-*.csv");
+        return new String[] {
+                kubectlDir, "exec", "-n", "coil", "-i", "-t",
+                podName,
+                "-c", container,
+                "--", "sh", "-c", "more ".concat(outputDir).concat("/").concat(fileName)
         };
     }
 
@@ -53,5 +69,29 @@ public class KubeCommands {
         }
 
     }
+    public boolean isFileCreated(String pod, String resultDir, String file) {
+        String tmpFileName = file.replace(".csv", "").concat("-*.csv");
+
+        String[] testFilePresent = {
+                kubectlDir, "exec", "-n", "coil", "-i", "-t",
+                pod, "--", "sh", "-c",
+                "ls "+resultDir + "/" + file + " >/dev/null 2>&1 && echo File exists"
+        };
+
+        try {
+            await().atMost(300, TimeUnit.SECONDS)
+                    .pollDelay(10, TimeUnit.SECONDS)
+                    .until(() ->
+                            new Loader().run(testFilePresent, false)
+                                    .stream()
+                                    .anyMatch(line -> line.equalsIgnoreCase("File exists"))
+                    );
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
 }
+
+

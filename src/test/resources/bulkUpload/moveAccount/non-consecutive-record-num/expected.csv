@@ -1,2 +1,5 @@
 Record Type,Error Text
-E,Row 3: [recordNumber non-consecutive value]
+E,Row 2: File validation failed
+E,Row 3: null
+E,"Row 4: [recordNumber is required, recordNumber non-consecutive value]"
+E,Row 5: null

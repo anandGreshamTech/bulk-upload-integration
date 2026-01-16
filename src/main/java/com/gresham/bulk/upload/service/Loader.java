@@ -8,27 +8,34 @@ import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class Loader {
 
-    public List<String> run(String[] command,boolean firstLine ) {
+    public List<String> run(String[] command,boolean ignoreConsoleFirstLine ) {
         List<String> lines = new LinkedList<>();
-        Arrays.stream(command).forEach(part->{
-            System.out.print(part+" ");
-        });
+        System.out.println("COMMAND IS :");
+        System.out.println(Arrays.toString(command));
         try {
             ProcessBuilder processBuilder = new ProcessBuilder(command);
+            
             processBuilder.redirectErrorStream(true);
+
+            Map<String, String> env = processBuilder.environment();
+            String currentPath = env.get("PATH");
+            env.put("PATH", currentPath + ":/Users/anandnagvanshi/gcloud/google-cloud-sdk/bin/gke-gcloud-auth-plugin"); 
+
+            processBuilder.redirectErrorStream(true);
+            
             Process process = processBuilder.start();
             BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line;
             while ((line = reader.readLine()) != null) {
-                if (firstLine) {
-                    firstLine = false;
-                } else {
                     lines.add(line);
-                }
+            }
+            if (ignoreConsoleFirstLine) {
+                lines.remove(0);
             }
         }catch (IOException e) {
             e.printStackTrace();

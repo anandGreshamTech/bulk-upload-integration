@@ -1,0 +1,3 @@
+Record Type,Error Text
+E,Row 2: The Authlink in the file name does not match the Customer Code in the header
+E,Row 3: Account unable to be closed due to file-level errors
