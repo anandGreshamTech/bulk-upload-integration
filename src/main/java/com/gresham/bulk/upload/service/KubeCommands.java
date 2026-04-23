@@ -26,7 +26,7 @@ public class KubeCommands {
     
     public String[] getCopyTestFile(Path file){
         return new String[]{
-                kubectlDir, "cp", "-n", "coil", file.toString(),
+                kubectlDir, "cp", "-n", "coil", file.toAbsolutePath().toString(),
                 "comms-in-0:data/fileactive/bulkupload/waiting/".concat(file.getFileName().toString()), "-c", "comm-anz-in"};
         
     }

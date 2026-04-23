@@ -81,7 +81,15 @@ public class ResourceReader {
     }
     @NotNull
     public Path getInputFile(List<Path> files, String patter) {
-        return files.stream().filter(file -> file.getFileName().toString().contains(patter)).collect(toList()).get(0);
+        Path result;
+        try{
+
+             result = files.stream().filter(file -> file.getFileName().toString().contains(patter)).toList().get(0);
+        }catch (IndexOutOfBoundsException ioob){
+            result = files.stream().filter(file -> !file.getFileName().toString().contains("expected")).toList().get(0);
+
+        }
+        return result;
     }
 
 

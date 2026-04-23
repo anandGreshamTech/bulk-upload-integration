@@ -74,12 +74,12 @@ class CloseAccountTest {
         boolean actualFileFound = false;
         if (expectedFile.getFileName().toString().toUpperCase().contains("RESPONSE")) {
             readFileFromConsole = kubeCommands.readFileFromConsole(simulator.get(0), container, responseFile, resultDir);
-            if (kubeCommands.isFileCreated(simulator.get(0),container, resultDir, responseFile)) {
+            if (kubeCommands.isFileCreated(simulator.get(0), resultDir, responseFile)) {
                 actualFileFound = true;
                 actual = loader.run(readFileFromConsole, true);
             }
         } else {
-            if (kubeCommands.isFileCreated(simulator.get(0),container, resultDir, rejectFile)) {
+            if (kubeCommands.isFileCreated(simulator.get(0), resultDir, rejectFile)) {
                 actualFileFound = true;
                 Arrays.stream(readFileFromConsole)
                         .forEach(System.out::print);

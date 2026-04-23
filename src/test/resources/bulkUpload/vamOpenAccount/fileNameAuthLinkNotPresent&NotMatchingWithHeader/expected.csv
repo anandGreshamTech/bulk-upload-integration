@@ -1,0 +1,3 @@
+Record Type,Error Text
+E,"1000: The Authlink in the file name does not match the Customer Code in the header,1000: Unable to retrieve Customer record for AuthLink in file name"
+E,1001: Account unable to be created due to file-level errors

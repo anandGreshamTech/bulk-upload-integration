@@ -1,3 +1,1 @@
-1,V,1.0
-2,H,CCM-18139,1
-3,C,,362061901,183043,365763672,Sherwood Reichert
+kubectl cp -n coil src/test/resources/bulkUpload/closeAccount/tmp/CLOSE_200KONE_20260325142823.csv comms-in-0:data/fileactive/bulkupload/waiting/CLOSE_200KONE_20260325142823.csv -c comm-anz-in

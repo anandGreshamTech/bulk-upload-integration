@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan("com.gresham.bulk.upload.service")
+@ComponentScan({"com.gresham.bulk.upload.service","com.gresham.bulk.upload.repo"})
 public class BulkUploadApplication {
 
 	public static void main(String[] args) {
