@@ -1,6 +1,8 @@
-package com.gresham.bulk.upload;
+package com.gresham.bulk.upload.test;
 
 import com.github.javafaker.Faker;
+import com.gresham.bulk.upload.BulkUploadTestProcessor;
+import com.gresham.bulk.upload.UploadType;
 import com.gresham.bulk.upload.entity.TransferRecord;
 import com.gresham.bulk.upload.service.KubeCommands;
 import com.gresham.bulk.upload.service.Loader;
@@ -44,21 +46,7 @@ class InternalTransferTest implements BulkUploadTestProcessor {
     @Autowired
     QueryService queryService;
 
-    /*   @Test
-       void testInvalidAuthLinkInFile() {
-           String resultType = "REJECT";
-           String authLink = findAuthLink(queryService.findCustomersOfTypeForVam("VIRTUAL_ACCOUNTS"));
-           assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
-           List<String> accounts = queryService.findAccountNumberWithBalanceForCustomer(authLink);
-           assertEquals(2, accounts.size(), "not enough accounts");
-           List<String> expected = List.of(
-                   "Record Type,Error Text",
-                   "E,Row 2: The Authlink in the file name does not match the Customer Code in the header",
-                   "E,Row 3: Internal Transfer unable to be made due to file-level errors"
-           );
-           createTestFileAndCompareResult(authLink, accounts, expected, resultType, true);
-       }
-   */
+   
     @Test
     void testInvalidAuthLinkInFileNameAndHeader() {
         String resultType = "REJECT";

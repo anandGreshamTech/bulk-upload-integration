@@ -1,3 +1,0 @@
-Record Type,Error Text
-E,"0003: Row 2: invalid field format 'one' in column 4,1000: Row 2: An Account Open file without any Accounts is invalid"
-E,1001: Account unable to be created due to file-level errors

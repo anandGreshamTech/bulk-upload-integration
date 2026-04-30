@@ -3,10 +3,14 @@ package com.gresham.bulk.upload.service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import com.gresham.bulk.upload.dto.ProductDetail;
 
+import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Service
 public class QueryService {
     @PersistenceContext
@@ -116,6 +120,36 @@ public class QueryService {
         return entityManager.createNativeQuery(sql)
                 .setParameter("type", type).getResultList();
 
+    }
+    
+    @Transactional
+    public List<ProductDetail> findProductForCustomer(String customer) {
+
+        var sql = """
+                SELECT PRD.CODESUFFIX, PRD.ID
+                FROM CCM.CUSTOMER CUST
+                JOIN CCM.PRODUCTCUSTOMER PC
+                    ON CUST.ID = PC.CUSTOMERID
+                JOIN CCM.PRODUCT PRD
+                    ON PRD.ID = PC.PRODUCTID
+                WHERE CUST.AUTHLINK = :customer
+
+                """;
+        try {
+            List<Object[]> results = entityManager.createNativeQuery(sql)
+                    .setParameter("customer", customer.trim())
+                    .getResultList();
+
+            return results.stream()
+                    .filter(r -> r != null && r.length >= 2)
+                    .map(r -> new ProductDetail(
+                            r[0] != null ? (String) r[0] : "",
+                            r[1] != null ? (String) r[1] : ""))
+                    .toList();
+        } catch (Exception e) {
+            log.error("Error finding products for customer: {}", customer, e);
+            return Collections.emptyList();
+        }
     }
 }
 
