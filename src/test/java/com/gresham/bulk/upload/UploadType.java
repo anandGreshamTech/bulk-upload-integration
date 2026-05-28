@@ -32,6 +32,28 @@ public enum UploadType {
         public String getFilePrefix() {
             return "VAMAccountOpen";
         }
+    },
+    PAYMENT{
+        @Override
+        public String getDataDir() {
+            return "src/test/resources/bulkUpload/payment";
+        }
+
+        @Override
+        public String getFilePrefix() {
+            return "Pay";
+        }
+    },
+    AGG_PAYMENT{
+        @Override
+        public String getDataDir() {
+            return "src/test/resources/bulkUpload/aggPayment";
+        }
+
+        @Override
+        public String getFilePrefix() {
+            return "AggPay";
+        }
     };
     
    public abstract String getDataDir();

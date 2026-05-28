@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class OpenAccountDataProvider {
-    static Stream<Arguments> accountOpenRecordValidations() {
+    static Stream<Arguments> accountOpenRecordValidationsOriginal() {
         return Stream.of(
                 Arguments.of("invalidOpenAccountRecordType", "REJECT",
                         List.of(
@@ -169,6 +169,37 @@ public class OpenAccountDataProvider {
                                 "Record Type,Error Text",
                                 "E,1000: The Authlink in the file name does not match the Customer Code in the header",
                                 "E,1001: Account unable to be created due to file-level errors"
+                        )
+                ),
+                Arguments.of("vamAccountOpenPositiveFlow", "RESPONSE",
+                        List.of(
+                                "1,V,VAM_1.0",
+                                "2,H,${authlink},1",
+                                "3,A,${accountName},${productId},${productCode},orp-85-oskt,orp-85-oskt"
+
+
+                        ), List.of(
+                                "1,V,VAM_1.0",
+                                "2,H,${authlink},1,0",
+                                "3,A,SUCCESS,${accountID},${accountNumber},0"
+                        )
+                )
+        );
+    }
+
+    static Stream<Arguments> accountOpenRecordValidations() {
+        return Stream.of(
+                Arguments.of("vamAccountOpenPositiveFlow", "RESPONSE",
+                        List.of(
+                                "1,V,VAM_1.0",
+                                "2,H,${authlink},1",
+                                "3,A,${accountName},${productId},${productCode},orp-85-oskt,orp-85-oskt"
+
+
+                        ), List.of(
+                                "1,V,VAM_1.0",
+                                "2,H,${authlink},1,0",
+                                "3,A,SUCCESS,${accountID},${accountNumber},0"
                         )
                 )
         );

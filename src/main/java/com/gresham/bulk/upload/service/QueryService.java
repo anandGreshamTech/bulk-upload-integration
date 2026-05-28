@@ -1,5 +1,6 @@
 package com.gresham.bulk.upload.service;
 
+import com.gresham.bulk.upload.dto.ClaDetail;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,28 @@ public class QueryService {
         return entityManager
                 .createNativeQuery(sql)
                 .getResultList();
+
+
+    }
+
+    @Transactional
+    public List<ClaDetail> findClaForCustomer(String authLink) {
+        String sql = """
+                SELECT  C.ID,C.ACCOUNTNAME
+                           FROM CCM.CUSTOMERLINKEDACCOUNT C
+                           JOIN CCM.CUSTOMER CUST ON C.CUSTOMERID =CUST.ID
+                           WHERE CUST.AUTHLINK =:authLink
+                """;
+        List<Object[]> results = entityManager.createNativeQuery(sql)
+                .setParameter("authLink", authLink.trim())
+                .getResultList();
+        
+        return results.stream()
+                .filter(r -> r != null && r.length >= 2)
+                .map(r -> new ClaDetail(
+                        r[0] != null ? (String) r[0] : "",
+                        r[1] != null ? (String) r[1] : ""))
+                .toList();
 
 
     }

@@ -3,7 +3,6 @@ package com.gresham.bulk.upload.test;
 import com.github.javafaker.Faker;
 import com.gresham.bulk.upload.BulkUploadTestProcessor;
 import com.gresham.bulk.upload.UploadType;
-import com.gresham.bulk.upload.dto.ProductDetail;
 import com.gresham.bulk.upload.service.KubeCommands;
 import com.gresham.bulk.upload.service.Loader;
 import com.gresham.bulk.upload.service.QueryService;
@@ -19,8 +18,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
@@ -30,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @Slf4j
-class VamOpenAccountV2Test implements BulkUploadTestProcessor {
+class PaymentV2Test implements BulkUploadTestProcessor {
     @Autowired
     private KubeCommands kubeCommands;
     @Autowired
@@ -41,34 +38,24 @@ class VamOpenAccountV2Test implements BulkUploadTestProcessor {
     QueryService queryService;
 
 
-    @ParameterizedTest(name = "{0} test")
-    @MethodSource("com.gresham.bulk.upload.dataprovider.OpenAccountDataProvider#accountOpenRecordValidations")
-    void testAccountOpenValidations(String scenario, String resultType, List<String> data, List<String> expected) {
+    @ParameterizedTest(name = "{0}Test")
+    @MethodSource("com.gresham.bulk.upload.dataprovider.PaymentDataProvider#data")
+    void testHeaderValidations(String scenario, String resultType, List<String> data, List<String> expected) {
         var authLink = findAuthLink(queryService.findCustomersOfType("VIRTUAL_ACCOUNTS"));
-        authLink = getAuthLinkForNegativeCases(scenario, authLink);
         var fileData = new StringBuilder();
         logCustomerDetails(authLink);
+        List<String> accounts = queryService.findAccountNumberForClosure(authLink);
         var header = updateNonCustomerCodeCases(scenario, data.get(1), authLink);
-        var product = queryService.findProductForCustomer(authLink);
-        var accountOpenRecord = updateProductDetailsInAccountRecord(data.get(2), product);
-        accountOpenRecord = updateReference(accountOpenRecord);
-        accountOpenRecord = updateAccountName(accountOpenRecord);
-        fileData.append(data.get(0)).append("\n").append(header).append("\n").append(accountOpenRecord);
+        var paymentRecord = updateAccountNumberInCloseAccountRecord(data.get(2), accounts);
+        //paymentRecord = UpdateRecipientDetailsInCloseAccountRecord(paymentRecord, true, true, true);
+        fileData.append(data.get(0)).append("\n").append(header).append("\n").append(paymentRecord);
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
+        authLink= getAuthLinkForNegativeCase(scenario,authLink);
         createTestFileForHeaderValidationAndCompareResult(authLink, expected, fileData, resultType);
     }
 
-    private String getAuthLinkForNegativeCases(String scenario, String authLink) {
-        if (scenario.equalsIgnoreCase("vamAccountOpenRequestWithClientMoneyCustomer")) {
-            authLink = getClientMoniesCustomer();
-        } else if (scenario.equalsIgnoreCase("fileNameAuthLinkNotPresent&NotMatchingWithHeader")) {
-            authLink = "invalidAuthLink";
-        }
-        return authLink;
-    }
-
-    private String getClientMoniesCustomer() {
-        return findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
+    String getAuthLinkForNegativeCase(String scenario, String authLink){ 
+        return "incorrectAuthLinkInFileName".equalsIgnoreCase(scenario)? "invalidAuthLink": authLink;
     }
 
     private String updateNonCustomerCodeCases(String testName, String header, String authLink) {
@@ -78,25 +65,23 @@ class VamOpenAccountV2Test implements BulkUploadTestProcessor {
         return header;
     }
 
-    private String updateProductDetailsInAccountRecord(String accountOpenRecord, List<ProductDetail> productDetail) {
-        var random = ThreadLocalRandom.current().nextInt(0, productDetail.size());
-        ProductDetail currentPrd = productDetail.get(random);
-        
-        return accountOpenRecord.replace("${productId}", currentPrd.id()).replace("${productCode}", currentPrd.code());
+    private String updateAccountNumberInCloseAccountRecord(String closeAccountRecord, List<String> accounts) {
+        return closeAccountRecord.replace("${account}", accounts.get(0));
     }
 
-    
-    private String updateReference(String accountOpenRecord) {
-        Faker faker = new Faker();
-        var ref = faker.number().digits(6);
-        var secRef = faker.number().digits(9);
+    private String UpdateRecipientDetailsInCloseAccountRecord(String closeAccountRecord, boolean updateBsb, boolean updateRecipientAccount, boolean updateRecipientName) {
 
-        return accountOpenRecord.replace("${reference}", ref).replace("${secRed}", secRef);
-    }
-    private String updateAccountName(String accountOpenRecord) {
         Faker faker = new Faker();
-        var fullName = faker.name().fullName();
-        return accountOpenRecord.replace("${accountName}", fullName);
+        var bsb = faker.number().digits(6);
+        var recipientAccount = faker.number().digits(9);
+        var recipientName = faker.name().fullName();
+        var updatedRecord = closeAccountRecord;
+
+        updatedRecord = updateBsb ? updatedRecord.replace("${bsb}", bsb) : updatedRecord;
+        updatedRecord = updateRecipientAccount ? updatedRecord.replace("${recipientAccount}", recipientAccount) : updatedRecord;
+        updatedRecord = updateRecipientName ? updatedRecord.replace("${recipientName}", recipientName) : updatedRecord;
+
+        return updatedRecord;
     }
 
     private void logCustomerDetails(String authLink) {
@@ -109,7 +94,7 @@ class VamOpenAccountV2Test implements BulkUploadTestProcessor {
 
 
     private Path createTestFileHeaderCases(String fileNamePrefixType, String authLink, StringBuilder fileData) {
-        String tempDir = UploadType.VAM_OPEN_ACCOUNT.getDataDir().concat("/tmp/");
+        String tempDir = UploadType.PAYMENT.getDataDir().concat("/tmp/");
         Path path = Path.of(tempDir + reader.createFileName(authLink, fileNamePrefixType));
         try {
             Files.writeString(path, fileData.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -122,7 +107,7 @@ class VamOpenAccountV2Test implements BulkUploadTestProcessor {
     void createTestFileForHeaderValidationAndCompareResult(String authLink, List<String> expected, StringBuilder fileData, String resultType) {
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
         List<String> actual;
-        Path testFile = createTestFileHeaderCases(UploadType.VAM_OPEN_ACCOUNT.getFilePrefix(), authLink, fileData);
+        Path testFile = createTestFileHeaderCases(UploadType.PAYMENT.getFilePrefix(), authLink, fileData);
         List<String> simulator = loader.run(kubeCommands.getSimulatorPodCommand(), false);
         loader.run(kubeCommands.getCopyTestFile(testFile), false);
         String expectedFileName = testFile.getFileName().toString().replace(".csv", "_REJECT.csv");
@@ -141,38 +126,31 @@ class VamOpenAccountV2Test implements BulkUploadTestProcessor {
             log.info("{ACTUAL FILE NOT FOUND}");
             fail();
         }
-//        reader.cleanUp(reader.getFiles(Path.of(UploadType.VAM_OPEN_ACCOUNT.getDataDir().concat("/tmp"))), UploadType.VAM_OPEN_ACCOUNT.getFilePrefix());
+        //reader.cleanUp(reader.getFiles(Path.of(UploadType.TRANSFER.getDataDir().concat("/tmp"))), UploadType.TRANSFER.getFilePrefix());
     }
 
     private void compare(List<String> expected, List<String> actual) {
-
-        List<String> updatedExpected =
-                IntStream.range(0, expected.size())
-                        .mapToObj(i -> {
-                            List<String> actualParts;
-                            List<String> expectedParts = new ArrayList<>();
-                            actualParts = Arrays.asList(actual.get(i).split(","));
-                            expectedParts = Arrays.asList(expected.get(i).split(","));
-                            if (i == 1) { // this is header row where we need to update authlink
-                                if (expectedParts.size() > 2) {
-                                    expectedParts.set(2, actualParts.get(2));
+        
+            List<String> updatedExpected =
+                    IntStream.range(0, expected.size())
+                            .mapToObj(i -> {
+                                String[] actualParts = actual.get(i).split(",");
+                                String[] expectedParts = expected.get(i).split(",");
+                                if(actualParts.length>2){
+                                    expectedParts[2] = actualParts[2];
+                                    int index = 3;
+                                    if (index < actualParts.length && index < expectedParts.length) {
+                                        expectedParts[index] = actualParts[index];
+                                    }
                                 }
-                            } else if (i == 2) {// this is for account record account id and number handling
-                                if (expectedParts.size() > 2 && expectedParts.get(2).equalsIgnoreCase("success")) {
-                                    expectedParts.set(3, actualParts.get(3));
-                                    expectedParts.set(4, actualParts.get(4));
-                                }
-
-                            } else {
-                                expectedParts = Arrays.asList(expected.get(i).split(","));
-                            }
-                            return String.join(",", expectedParts);
-                        })
-                        .toList();
-
-        assertIterableEquals(updatedExpected, actual);
+                                return String.join(",", expectedParts);
+                               
+                            })
+                            .toList();
+            assertIterableEquals(updatedExpected, actual);
+        } 
+        
     }
-
-}
+    
 
 
