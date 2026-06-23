@@ -20,18 +20,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static com.gresham.bulk.upload.UploadType.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("tui")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @Slf4j
-class PaymentV2Test implements BulkUploadTestProcessor {
+class CloseAccount implements BulkUploadTestProcessor {
     @Autowired
     private KubeCommands kubeCommands;
     @Autowired
@@ -41,55 +44,72 @@ class PaymentV2Test implements BulkUploadTestProcessor {
     @Autowired
     QueryService queryService;
 
-    @ParameterizedTest(name = "{0}Test")
-    @MethodSource("com.gresham.bulk.upload.dataprovider.PaymentDataProvider#data")
-    void paymentTest(String scenario, String resultType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow, List<String> data, List<String> expected) {
-//        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
-        var authLink = "BULK2";
+
+    @ParameterizedTest(name = "{0} test")
+    @MethodSource("com.gresham.bulk.upload.dataprovider.CloseAccountDataProviderV2#data")
+    void transferValidations(String scenario, String resultType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow, List<String> data, List<String> expected) {
+        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
+        authLink = getAuthLinkForNegativeCases(scenario, authLink);
         var fileData = new StringBuilder();
         logCustomerDetails(authLink);
-        List<String> accounts = queryService.findAccountNumberWithBalance(authLink,100,1);
-        var header = updateNonCustomerCodeCases(scenario, data.get(1), authLink);
-        List<String> instructions = data.subList(2, data.size());
-        var paymentRecord = updateAccountNumberAndReferenceInPaymentRecord(instructions, accounts);
-        //paymentRecord = UpdateRecipientDetailsInCloseAccountRecord(paymentRecord, true, true, true);
+        var header = updateAuthLink(data.get(1), authLink);
+        List<String> accountNumberWithBalance = queryService.findAccountNumberWithBalance(authLink, 0, 1);
+        List<String> closureRecordList = data.subList(2, data.size());
+        var updatedClosureRecord = updateAccounts(closureRecordList, accountNumberWithBalance);
+        updatedClosureRecord=updateRecipient(updatedClosureRecord);
         fileData.append(data.get(0)).append("\n").append(header).append("\n");
-        paymentRecord.forEach(record -> fileData.append(record).append("\n"));
+        updatedClosureRecord.forEach(record -> fileData.append(record).append("\n"));
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
-        authLink = getAuthLinkForNegativeCase(scenario, authLink);
+        authLink = updateAuthLinkBasedOnScenario(scenario, authLink);
         createTestFileForHeaderValidationAndCompareResult(authLink, expected, fileData, resultType, ignoreHeader, columnsToIgnoreByRow);
     }
 
-    String getAuthLinkForNegativeCase(String scenario, String authLink) {
-        return "incorrectAuthLinkInFileName".equalsIgnoreCase(scenario) ? "invalidAuthLink" : authLink;
-    }
 
-    private String updateNonCustomerCodeCases(String testName, String header, String authLink) {
-        if (!testName.equalsIgnoreCase("InvalidCustomerCode")) {
-            header = header.replace("${authlink}", authLink);
+    private String updateAuthLinkBasedOnScenario(String scenario, String authLink) {
+        if (scenario.equalsIgnoreCase("fileNameAuthLinkIsNotValid")) {
+            return "invalidAuthLink";
+        } else if (scenario.equalsIgnoreCase("fileNameAuthLinkIsDifferentThanDataInFile")) {
+            return queryService.findCustomersNotIn(authLink);
         }
-        return header;
+        return authLink;
     }
 
-    private List<String> updateAccountNumberAndReferenceInPaymentRecord(List<String> paymentRecord, List<String> accounts) {
-        return paymentRecord.stream().map(record -> record.replace("${account}", accounts.get(0)))
-                .map(record -> record.replace("${reference}", Faker.instance().bothify("??##??##"))).toList();
-                
+    private List<String> updateAccounts(List<String> records, List<String> accounts) {
+        if (accounts.size() < records.size()) {
+            fail("Dont Have required number of accounts to run this test, check the conditions in data provider ");
+        }
+        return IntStream.range(0, records.size())
+                .mapToObj(i -> records.get(i).replace("${account}", accounts.get(i)))
+                .toList();
     }
 
-    private String UpdateRecipientDetailsInCloseAccountRecord(String closeAccountRecord, boolean updateBsb, boolean updateRecipientAccount, boolean updateRecipientName) {
+    private String getAuthLinkForNegativeCases(String scenario, String authLink) {
+        if (scenario.equalsIgnoreCase("vamAccountOpenRequestWithClientMoneyCustomer")) {
+            authLink = getClientMoniesCustomer();
+        } else if (scenario.equalsIgnoreCase("fileNameAuthLinkNotPresent&NotMatchingWithHeader")) {
+            authLink = "invalidAuthLink";
+        }
+        return authLink;
+    }
 
+    private String getClientMoniesCustomer() {
+        return findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
+    }
+
+    private String updateAuthLink(String header, String authLink) {
+        return header.replace("${authlink}", authLink);
+    }
+
+
+    private List<String> updateRecipient(List<String> transferRecords) {
         Faker faker = new Faker();
-        var bsb = faker.number().digits(6);
-        var recipientAccount = faker.number().digits(9);
-        var recipientName = faker.name().fullName();
-        var updatedRecord = closeAccountRecord;
-
-        updatedRecord = updateBsb ? updatedRecord.replace("${bsb}", bsb) : updatedRecord;
-        updatedRecord = updateRecipientAccount ? updatedRecord.replace("${recipientAccount}", recipientAccount) : updatedRecord;
-        updatedRecord = updateRecipientName ? updatedRecord.replace("${recipientName}", recipientName) : updatedRecord;
-
-        return updatedRecord;
+        List<String> result = new ArrayList<>();
+        return IntStream.range(0, transferRecords.size())
+                .mapToObj(i -> 
+                     transferRecords.get(i).replace("${recipientName}", faker.name().fullName())
+                             .replace("${recipientAccount}", faker.number().digits(9))
+                             .replace("${bsb}", faker.number().digits(6))).toList();
+        
     }
 
     private void logCustomerDetails(String authLink) {
@@ -102,7 +122,7 @@ class PaymentV2Test implements BulkUploadTestProcessor {
 
 
     private Path createTestFileHeaderCases(String fileNamePrefixType, String authLink, StringBuilder fileData) {
-        String tempDir = UploadType.PAYMENT.getDataDir().concat("/tmp/");
+        String tempDir = CLOSE_ACCOUNT.getDataDir().concat("/tmp/");
         Path path = Path.of(tempDir + reader.createFileName(authLink, fileNamePrefixType));
         try {
             Files.writeString(path, fileData.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -116,9 +136,7 @@ class PaymentV2Test implements BulkUploadTestProcessor {
         DataCompareService dataCompare = new DataCompareService();
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
         List<String> actual;
-        Path testFile = createTestFileHeaderCases(UploadType.PAYMENT.getFilePrefix(), authLink, fileData);
-        System.out.println("kubectl cp -n coil ".concat(testFile.toAbsolutePath().toString()));
-        System.out.println(String.format("comms-in-0:data/fileactive/bulkupload/waiting/%s -c comm-anz-in\n",testFile.getFileName()));
+        Path testFile = createTestFileHeaderCases(CLOSE_ACCOUNT.getFilePrefix(), authLink, fileData);
         List<String> simulator = loader.run(kubeCommands.getSimulatorPodCommand(), false);
         loader.run(kubeCommands.getCopyTestFile(testFile), false);
         String expectedFileName = testFile.getFileName().toString().replace(".csv", "_REJECT.csv");
@@ -142,7 +160,7 @@ class PaymentV2Test implements BulkUploadTestProcessor {
             log.info("{ACTUAL FILE NOT FOUND}");
             fail();
         }
-        //reader.cleanUp(reader.getFiles(Path.of(UploadType.TRANSFER.getDataDir().concat("/tmp"))), UploadType.TRANSFER.getFilePrefix());
+//        reader.cleanUp(reader.getFiles(Path.of(UploadType.TRANSFER.getDataDir().concat("/tmp"))), UploadType.TRANSFER.getFilePrefix());
     }
 
     private void compare(List<String> expected, List<String> actual) {
@@ -150,23 +168,30 @@ class PaymentV2Test implements BulkUploadTestProcessor {
         List<String> updatedExpected =
                 IntStream.range(0, expected.size())
                         .mapToObj(i -> {
-                            String[] actualParts = actual.get(i).split(",");
-                            String[] expectedParts = expected.get(i).split(",");
-                            if (actualParts.length > 2) {
-                                expectedParts[2] = actualParts[2];
-                                int index = 3;
-                                if (index < actualParts.length && index < expectedParts.length) {
-                                    expectedParts[index] = actualParts[index];
+                            List<String> actualParts;
+                            List<String> expectedParts = new ArrayList<>();
+                            actualParts = Arrays.asList(actual.get(i).split(","));
+                            expectedParts = Arrays.asList(expected.get(i).split(","));
+                            if (i == 1) { // this is header row where we need to update authlink
+                                if (expectedParts.size() > 2) {
+                                    expectedParts.set(2, actualParts.get(2));
                                 }
+                            } else if (i == 2) {// this is for account record account id and number handling
+                                if (expectedParts.size() > 2 && expectedParts.get(2).equalsIgnoreCase("success")) {
+                                    expectedParts.set(3, actualParts.get(3));
+                                    expectedParts.set(4, actualParts.get(4));
+                                }
+
+                            } else {
+                                expectedParts = Arrays.asList(expected.get(i).split(","));
                             }
                             return String.join(",", expectedParts);
-
                         })
                         .toList();
+
         assertIterableEquals(updatedExpected, actual);
     }
 
 }
-    
 
 

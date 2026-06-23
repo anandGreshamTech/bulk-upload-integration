@@ -10,6 +10,7 @@ import com.gresham.bulk.upload.dto.ProductDetail;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -81,7 +82,7 @@ public class QueryService {
     }
 
     @Transactional
-    public List<String> findAccountNumberForClosure(String authLink) {
+    public List<String> findAccountNumber(String authLink) {
         var sql = """
                 SELECT distinct acc.accountnumber\s
                         FROM CCM.CUSTOMER CUST
@@ -94,6 +95,48 @@ public class QueryService {
                 """;
         return entityManager.createNativeQuery(sql)
                 .setParameter("authLink", authLink).getResultList();
+    }
+    @Transactional
+    public List<String> findAccountNumberAggPayment(String authLink) {
+        var sql = """
+                SELECT distinct acc.accountnumber\s
+                        FROM CCM.CUSTOMER CUST
+                        JOIN CCM.ACCOUNT ACC ON CUST.ID = ACC.CUSTOMERID
+                        WHERE\s
+                        CUST.authlink = :authLink
+                        and acc.status =0
+                        limit 1
+                        
+                """;
+        return entityManager.createNativeQuery(sql)
+                .setParameter("authLink", authLink).getResultList();
+    }  
+    
+    @Transactional
+    public List<String> findAccountNumberWithBalance(String authLink, int balance,int numberOfAccounts) {
+        log.info("Finding account number for authLink: {} with balance condition: {}", authLink, balance);
+        Map<String,String> authLinkVirtualAccountMapper = Map.of(
+                "vamcust1","024100939"
+        );
+        var sql = """
+                SELECT DISTINCT ACC.ACCOUNTNUMBER
+                                        FROM CCM.CUSTOMER CUST
+                                        JOIN CCM.ACCOUNT ACC ON CUST.ID = ACC.CUSTOMERID
+                                        JOIN CCM.ACCOUNTBALANCE  BAL ON ACC.ID=BAL.ACCOUNTID\s
+                                        WHERE
+                                        CUST.AUTHLINK = :authLink
+                                        AND ACC.STATUS =0
+                                        AND BAL.AVAILABLEBALANCE %s
+                                        AND DATE= CURRENT_DATE
+                                        and ACC.ACCOUNTNUMBER NOT IN ('virtualAccountNumber')
+                                        LIMIT ${limit}
+                """;
+
+        String finalQuery = String.format(sql, balance != 0 ? "> " + balance : "<= 0").replace("${limit}",String.valueOf(numberOfAccounts)).replace("virtualAccountNumber",authLinkVirtualAccountMapper.getOrDefault(authLink,""));
+        log.info("Executing query: {}", finalQuery);
+        return entityManager.createNativeQuery(finalQuery)
+                .setParameter("authLink", authLink)
+                .getResultList();
     }
 
     
@@ -143,6 +186,19 @@ public class QueryService {
         return entityManager.createNativeQuery(sql)
                 .setParameter("type", type).getResultList();
 
+    } 
+    @Transactional
+    public String findCustomersNotIn(String authLink)  {
+
+        var query = """
+                  SELECT AUTHLINK FROM CCM.CUSTOMER WHERE
+                  CUSTOMERTYPE =( SELECT CUSTOMERTYPE FROM CCM.CUSTOMER WHERE AUTHLINK=:AUTHLINK)
+                  AND AUTHLINK !=:AUTHLINK
+                  LIMIT 1
+                """;
+        return entityManager.createNativeQuery(query)
+                .setParameter("AUTHLINK", authLink).getResultList().get(0).toString();
+
     }
     
     @Transactional
@@ -156,7 +212,7 @@ public class QueryService {
                 JOIN CCM.PRODUCT PRD
                     ON PRD.ID = PC.PRODUCTID
                 WHERE CUST.AUTHLINK = :customer
-
+                AND PRD.PRODUCTSTATE ='available'
                 """;
         try {
             List<Object[]> results = entityManager.createNativeQuery(sql)

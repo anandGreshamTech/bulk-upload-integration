@@ -1,2 +1,0 @@
-Record Type,Error Text
-E,"Row 1: [external payment type is required for non-CLA payments, invalid payment type provided, externalBankCode is required, externalAccountNumber is required, externalName is required]"

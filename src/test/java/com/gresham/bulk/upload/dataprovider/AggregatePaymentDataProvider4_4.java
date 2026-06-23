@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class AggregatePaymentDataProvider {
+public class AggregatePaymentDataProvider4_4 {
      static Stream<Arguments> dataFull() {
         return Stream.of(
                 Arguments.of("happyPath", "RESPONSE","claName"
@@ -55,8 +55,7 @@ public class AggregatePaymentDataProvider {
 
                         ), List.of(
                                 "Record Type,Error Text",
-                                "E,Row 1: missing mandatory field in column 2-Row 1: The Authlink in the file name does not match the Customer Code in the header-customerCode is required",
-                                "E,Row 2: Aggregate Payment unable to be made due to file-level errors"
+                                "E,\"Row 1: [customerCode is required, The AuthLink in the file name does not match the Customer Code in the header]\""
 
                         )
                 ),
@@ -150,8 +149,7 @@ public class AggregatePaymentDataProvider {
 
                         ), List.of(
                                 "Record Type,Error Text",
-                                "E,Row 1: The header TotalAmount: 2.90 does not match the sum of the Instruction amounts in the file: 2.92",
-                                "E,Row 2: Aggregate Payment unable to be made due to file-level errors"
+                                "E,Row 1: [The header TotalAmount does not match the sum of the Instruction amounts in the file]"
 
                         )
                 ),Arguments.of("headerCurrencyBlank", "REJECT","claName",false,Collections.emptyMap(),
@@ -412,17 +410,17 @@ public class AggregatePaymentDataProvider {
     }
      static Stream<Arguments> data() {
         return Stream.of(
-                Arguments.of("happyPath", "RESPONSE","claName"
-                        ,false,Map.of(2,List.of(2,9)),
+                Arguments.of("ClaNameInvalid", "REJECT","claId"
+                        ,false,Collections.emptyMap(),
                         List.of(
-                                "1,V,2.0",
-                                "2,H,${authlink},1,${reference},Automation,2.92,AUD,DEBIT,,,233232233,232323,account-name,RTGS,Town,",
-                                "3,I,,${account},2.92,AUD,DEBIT,narrative,T"
+                                "Record Type,Customer Name,Count,Reference,Customer Reference,Total Amount,Currency,Type,CLA ID,CLA Name,External Account Number,External Bank Code,External Name,External Payment Type",
+                                "H,${authlink},1,${reference},Automation,2.92,AUD,DEBIT,${claId},claName,,,,",
+                                "I,2,,${account},2.92,AUD,DEBIT,narrative,2.92"
 
                         ), List.of(
                                 "Record Type,Error Text",
-                                "E,\"Row 1: [The AuthLink in the file name does not match the Customer Code in the header, Unable to retrieve Customer record for AuthLink in file name]\"",
-                                "E,Row 2: null"
+                                "E,Row 1: Invalid header CLA Name provided",
+                                "E,Row 2: Aggregate Payment unable to be made due to file-level errors"
                         )
                 )
         );

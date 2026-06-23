@@ -26,13 +26,15 @@ import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.IntStream;
 
+import static com.gresham.bulk.upload.UploadType.*;
+import static java.util.stream.Collectors.toList;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ActiveProfiles("tui")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @Slf4j
-class AggregatePaymentV2Test implements BulkUploadTestProcessor {
+class AggregateReceiptV2Test implements BulkUploadTestProcessor {
     @Autowired
     private KubeCommands kubeCommands;
     @Autowired
@@ -44,30 +46,31 @@ class AggregatePaymentV2Test implements BulkUploadTestProcessor {
 
 
     @ParameterizedTest(name = "{0}Test")
-    @MethodSource("com.gresham.bulk.upload.dataprovider.AggregatePaymentDataProvider#data")
-    void aggregatePayment(String scenario, String resultType, String claUpdateType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow, List<String> data, List<String> expected) {
-//        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
-        var authLink = "BULK2";
+    @MethodSource("com.gresham.bulk.upload.dataprovider.AggregateReceiptDataProvider#data")
+    void aggregateReceipt(String scenario, String resultType, String claUpdateType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow, List<String> data, List<String> expected) {
+        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
         var fileData = new StringBuilder();
         logCustomerDetails(authLink);
-        List<String> accounts = getAccountNumber(scenario,authLink);
+        List<String> accounts = getAccountNumber(scenario, authLink);
         List<ClaDetail> cla = queryService.findClaForCustomer(authLink);
         var header = updateCustomerCodeCases(scenario, data.get(1), authLink);
         header = updateCla(scenario, header, cla.get(0), claUpdateType);
         header = updateReference(scenario, header);
-        var paymentRecord = updateAccountNumberInPaymentRecord(data.get(2), accounts);
-        fileData.append(data.get(0)).append("\n").append(header).append("\n").append(paymentRecord);
+        List<String> instructions = data.subList(2, data.size());
+        var aggregateInstructions = updateAccountNumberInPaymentRecord(instructions, accounts);
+        fileData.append(data.get(0)).append("\n").append(header).append("\n");
+        aggregateInstructions.forEach(line -> fileData.append(line).append("\n"));
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
         authLink = getAuthLinkForNegativeCase(scenario, authLink);
         createTestFileForHeaderValidationAndCompareResult(authLink, expected, fileData, resultType, ignoreHeader, columnsToIgnoreByRow);
     }
 
     private List<String> getAccountNumber(String scenario, String authLink) {
-        List<String> accounts = Collections.emptyList();   
+        List<String> accounts = Collections.emptyList();
         if (scenario.toUpperCase().contains("INSUFFICIENTFUNDS")) {
-            accounts = queryService.findAccountNumberWithBalance(authLink,0,1);
+            accounts = queryService.findAccountNumberWithBalance(authLink, 0,1);
         } else {
-            accounts = queryService.findAccountNumberWithBalance(authLink,100,1);
+            accounts = queryService.findAccountNumberWithBalance(authLink, 100,1);
         }
         return accounts;
     }
@@ -93,17 +96,19 @@ class AggregatePaymentV2Test implements BulkUploadTestProcessor {
 
         }
         return header;
-    }   
-    
+    }
+
     private String updateReference(String scenario, String header) {
         Faker faker = new Faker();
         var reference = faker.bothify("???-##-????");
-        
+
         return header.replace("${reference}", reference);
     }
 
-    private String updateAccountNumberInPaymentRecord(String instruction, List<String> accounts) {
-        return instruction.replace("${account}", accounts.get(0));
+    private List<String> updateAccountNumberInPaymentRecord(List<String> instruction, List<String> accounts) {
+        return instruction.stream()
+                .map(line -> line.replace("${account}", accounts.get(0)))
+                .toList();
     }
 
     private String UpdateRecipientDetailsInCloseAccountRecord(String closeAccountRecord, boolean updateBsb,
@@ -132,7 +137,7 @@ class AggregatePaymentV2Test implements BulkUploadTestProcessor {
 
 
     private Path createTestFileHeaderCases(String fileNamePrefixType, String authLink, StringBuilder fileData) {
-        String tempDir = UploadType.AGG_PAYMENT.getDataDir().concat("/tmp/");
+        String tempDir = AGG_RECEIPT.getDataDir().concat("/tmp/");
         Path path = Path.of(tempDir + reader.createFileName(authLink, fileNamePrefixType));
         try {
             Files.writeString(path, fileData.toString(), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
@@ -146,10 +151,7 @@ class AggregatePaymentV2Test implements BulkUploadTestProcessor {
             fileData, String resultType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow) {
         assertFalse(authLink.isBlank(), "No customer found for this test check conditions in findCustomersOfType");
         List<String> actual;
-        Path testFile = createTestFileHeaderCases(UploadType.AGG_PAYMENT.getFilePrefix(), authLink, fileData);
-        System.out.println("kubectl cp -n coil ".concat(testFile.toAbsolutePath().toString()));
-        System.out.println(String.format("comms-in-0:data/fileactive/bulkupload/waiting/%s -c comm-anz-in\n",testFile.getFileName()));
-
+        Path testFile = createTestFileHeaderCases(AGG_RECEIPT.getFilePrefix(), authLink, fileData);
         List<String> simulator = loader.run(kubeCommands.getSimulatorPodCommand(), false);
         loader.run(kubeCommands.getCopyTestFile(testFile), false);
         String expectedFileName = testFile.getFileName().toString().replace(".csv", "_REJECT.csv");

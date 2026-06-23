@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest
 @Slf4j
-class CloseAccountTestV2 implements BulkUploadTestProcessor {
+class CloseAccountTestV2Obsolete implements BulkUploadTestProcessor {
     @Autowired
     private KubeCommands kubeCommands;
     @Autowired
@@ -44,7 +44,7 @@ class CloseAccountTestV2 implements BulkUploadTestProcessor {
         var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
         var fileData = new StringBuilder();
         logCustomerDetails(authLink);
-        List<String> accounts = queryService.findAccountNumberForClosure(authLink);
+        List<String> accounts = queryService.findAccountNumber(authLink);
         var header = updateNonCustomerCodeCases(scenario, data.get(1), authLink);
         var closeAccountRecord = updateAccountNumberInCloseAccountRecord(data.get(2), accounts);
         closeAccountRecord = UpdateRecipientDetailsInCloseAccountRecord(closeAccountRecord, true, true, true);

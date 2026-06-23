@@ -33,6 +33,17 @@ public enum UploadType {
             return "VAMAccountOpen";
         }
     },
+    CM_OPEN_ACCOUNT {
+        @Override
+        public String getDataDir() {
+            return "src/test/resources/bulkUpload/cmOpenAccount";
+        }
+
+        @Override
+        public String getFilePrefix() {
+            return "AccountOpen";
+        }
+    },
     PAYMENT{
         @Override
         public String getDataDir() {
@@ -53,6 +64,17 @@ public enum UploadType {
         @Override
         public String getFilePrefix() {
             return "AggPay";
+        }
+    },
+    AGG_RECEIPT{
+        @Override
+        public String getDataDir() {
+            return "src/test/resources/bulkUpload/aggReceipt";
+        }
+
+        @Override
+        public String getFilePrefix() {
+            return "AggRec";
         }
     };
     
