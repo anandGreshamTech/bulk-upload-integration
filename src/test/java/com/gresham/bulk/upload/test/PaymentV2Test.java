@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
@@ -73,10 +75,12 @@ class PaymentV2Test implements BulkUploadTestProcessor {
 
     private List<String> updateAccountNumberAndReferenceInPaymentRecord(List<String> paymentRecord, List<String> accounts) {
         return paymentRecord.stream().map(record -> record.replace("${account}", accounts.get(0)))
-                .map(record -> record.replace("${reference}", Faker.instance().bothify("??##??##"))).toList();
+                .map(record -> record.replace("${reference}", Faker.instance().bothify("??##??##")))
+                .map(record ->record.replace("${valueDate}",LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE))).toList();
                 
     }
 
+   
     private String UpdateRecipientDetailsInCloseAccountRecord(String closeAccountRecord, boolean updateBsb, boolean updateRecipientAccount, boolean updateRecipientName) {
 
         Faker faker = new Faker();

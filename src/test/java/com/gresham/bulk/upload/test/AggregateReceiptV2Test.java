@@ -48,7 +48,8 @@ class AggregateReceiptV2Test implements BulkUploadTestProcessor {
     @ParameterizedTest(name = "{0}Test")
     @MethodSource("com.gresham.bulk.upload.dataprovider.AggregateReceiptDataProvider#data")
     void aggregateReceipt(String scenario, String resultType, String claUpdateType, boolean ignoreHeader, Map<Integer, List<Integer>> columnsToIgnoreByRow, List<String> data, List<String> expected) {
-        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
+//        var authLink = findAuthLink(queryService.findCustomersOfType("CLIENT_MONIES"));
+        var authLink = "BULK2";
         var fileData = new StringBuilder();
         logCustomerDetails(authLink);
         List<String> accounts = getAccountNumber(scenario, authLink);
